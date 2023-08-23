@@ -1,8 +1,24 @@
-const io = require("socket.io")(8000, {
+const { readFileSync } = require("fs")
+const { createServer } = require("https")
+const { Server } = require("socket.io")
+
+const httpsServer = createServer({
+    key: readFileSync("./keys/server-key.pem"),
+    cert: readFileSync("./keys/server-cert.pem"),
+    requestCert: true,
+    ca: [
+        readFileSync("./keys/client-cert.pem")
+    ]
+})
+
+const io = new Server(httpsServer, {
     cors: {
         origin: ['http://localhost:3000']
     }
 })
+
+
+
 
 
 let rooms = {}
@@ -87,3 +103,6 @@ io.on("connection", socket => {
 
 
 })
+
+
+httpsServer.listen(8000)
