@@ -50,8 +50,12 @@ io.on("connection", socket => {
 
 
         console.log("backend-line join-room 21:", data.room);
-        cb(`Welcome ${data.username} to the discussion - ${data.room}`)
-        socket.to(data.room).emit("broadcast-who-joins", rooms)
+        let initMsg = `Welcome ${data.username} to the discussion - ${data.room}`
+        let initUsername = 'bot'
+        let initRoom = data.room
+        cb(initMsg)
+        let initData = { msg: initMsg, username: initUsername, room: initRoom }
+        socket.to(data.room).emit("broadcast-who-joins", initData)
     })
 
     socket.on('leave', () => {
@@ -67,10 +71,12 @@ io.on("connection", socket => {
         }
     })
 
-    socket.on('disconnect', () => {
+    socket.on('disconnect', (data) => {
+        console.log("socket.username: ", socket.username);
         if (socket.room) {
             socket.leave(socket.room)
             rooms[socket.room]--
+            console.log("disconnect......and there are..", rooms);
             if (rooms[socket.room] === 0) {
                 delete rooms[socket.room]
             }
